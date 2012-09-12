@@ -34,6 +34,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
 
     task :notify_deploy_finished do
+      send_options.merge!(:color => success_message_color)
       hipchat_client[hipchat_room_name].
         send(deploy_user, "#{human} finished deploying #{deployment_name} to #{env}.", send_options)
     end
@@ -47,7 +48,9 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     def deployment_name
       if branch
-        "#{application}/#{branch}"
+        name = "#{application}/#{branch}"
+        name += " (revision #{real_revision[0..7]})" if real_revision
+        name
       else
         application
       end
@@ -55,6 +58,10 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     def message_color
       fetch(:hipchat_color, nil)
+    end
+
+    def success_message_color
+      fetch(:hipchat_success_color, "green")
     end
 
     def failed_message_color
