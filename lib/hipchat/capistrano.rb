@@ -1,6 +1,13 @@
 require 'hipchat'
 
 Capistrano::Configuration.instance(:must_exist).load do
+  config_file = File.join('config', 'hipchat.yml')
+  if File.exists? config_file
+    options = YAML.load_file(config_file)
+    set :hipchat_token, options['token']
+    set :hipchat_room_name, options['room']
+  end
+
   set :hipchat_send_notification, false
   set :hipchat_with_migrations, false
 
